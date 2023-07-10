@@ -13,20 +13,24 @@ const l2Url = process.env.L2_PATEX_SEPOLIA_URL
 // Global variable because we need them almost everywhere
 let crossChainMessenger
 
-const getProviders = async () => {
+const getSigners = async () => {
     const l1RpcProvider = new ethers.providers.JsonRpcProvider(l1Url)
     const l2RpcProvider = new ethers.providers.JsonRpcProvider(l2Url)
 
-    return [l1RpcProvider, l2RpcProvider]
-}   // getProviders
+    const privateKey = process.env.FEE_WITHDRAWAL_PRIVKEY
+    const l1Wallet = new ethers.Wallet(privateKey, l1RpcProvider)
+    const l2Wallet = new ethers.Wallet(privateKey, l2RpcProvider)
+
+    return [l1Wallet, l2Wallet]
+}   // getSigners
 
 const setup = async() => {
-  const [l1Provider, l2Provider] = await getProviders()
+  const [l1Signer, l2Signer] = await getSigners()
   crossChainMessenger = new patexSDK.CrossChainMessenger({
       l1ChainId: 11155111,
       l2ChainId: 471100,
-      l1SignerOrProvider: l1Provider,
-      l2SignerOrProvider: l2Provider,
+      l1SignerOrProvider: l1Signer,
+      l2SignerOrProvider: l2Signer,
       bedrock: true
   })
 }    // setup
@@ -73,7 +77,7 @@ const withdrawFeeVaultETH = async (hash) => {
 
 const main = async () => {
     await setup()
-    await withdrawFeeVaultETH("withdraw_trx_hash")
+    await withdrawFeeVaultETH("0xc86d19d1f3432c3a5863fa7cf8190d71d765a28ac521633c1819d2402aad79d9")
 }  // main
 
 
