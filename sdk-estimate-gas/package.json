@@ -1,0 +1,15 @@
+{
+  "name": "sdk-gas-estimate",
+  "version": "1.0.0",
+  "main": "gas.js",
+  "license": "MIT",
+  "dependencies": {
+    "@eth-patex/sdk": "^1.0.1",
+    "dotenv": "^16.0.1",
+    "ethers": "^5.7.2",
+    "yargs": "^17.7.2"
+  },
+  "scripts": {
+    "estimate": "node gas.js"
+  }
+}
