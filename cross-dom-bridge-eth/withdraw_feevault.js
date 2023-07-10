@@ -77,7 +77,7 @@ const withdrawFeeVaultETH = async (hash) => {
 
 const main = async () => {
     await setup()
-    await withdrawFeeVaultETH("0xc86d19d1f3432c3a5863fa7cf8190d71d765a28ac521633c1819d2402aad79d9")
+    await withdrawFeeVaultETH("<<<withdraw_transaction_hash>>>")
 }  // main
 
 
