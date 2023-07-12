@@ -61,12 +61,8 @@ const withdrawFeeVaultETH = async (hash) => {
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)  
   await crossChainMessenger.proveMessage(hash)
 
-  console.log("In the challenge period, waiting for status READY_FOR_RELAY") 
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  await crossChainMessenger.waitForMessageStatus(hash,
-                                                patexSDK.MessageStatus.READY_FOR_RELAY) 
   console.log("Ready for relay, finalizing message now")
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)  
+  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
   await crossChainMessenger.finalizeMessage(hash)
 
   console.log("Waiting for status to change to RELAYED")
@@ -77,7 +73,7 @@ const withdrawFeeVaultETH = async (hash) => {
 
 const main = async () => {
     await setup()
-    await withdrawFeeVaultETH("<<<withdraw_transaction_hash>>>")
+    await withdrawFeeVaultETH("0xb25b1db39a6f3849bc9b019c48b9e2a64cfa53e3d232de7d15a094e55e308449")
 }  // main
 
 
