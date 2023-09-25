@@ -4,6 +4,7 @@
 
 const ethers = require("ethers")
 const patexSDK = require("@eth-patex/sdk")
+const {BigNumber} = require("@ethersproject/bignumber");
 require('dotenv').config()
 
 // Withdrawal ABI for FeeVault contract
@@ -23,12 +24,14 @@ const L2_PATEX_URL = process.env.NETWORK === 'mainnet' ? process.env.L2_MAINNET_
 const FEE_WITHDRAWAL_PRIVKEY = process.env.NETWORK === 'mainnet' ? process.env.MAINNET_FEE_WITHDRAWAL_PRIVKEY : process.env.SEPOLIA_FEE_WITHDRAWAL_PRIVKEY;
 const L1_CHAIN_ID = process.env.NETWORK === 'mainnet' ? process.env.L1_MAINNET_CHAIN_ID : process.env.L1_SEPOLIA_CHAIN_ID;
 const L2_CHAIN_ID = process.env.NETWORK === 'mainnet' ? process.env.L2_MAINNET_CHAIN_ID : process.env.L2_SEPOLIA_CHAIN_ID;
+const BATCHER_ADDRESS = process.env.NETWORK === 'mainnet' ? process.env.MAINNET_BATCHER_ADDRESS : process.env.SEPOLIA_BATCHER_ADDRESS;
 
 
 
 // Chains providers
 var L1Provider = new ethers.providers.JsonRpcProvider(L1_PATEX_URL);
 var L2Provider = new ethers.providers.JsonRpcProvider(L2_PATEX_URL);
+var balanceInEth = "";
 
 // Global variable because we need them almost everywhere
 let crossChainMessenger
@@ -53,9 +56,9 @@ const setup = async() => {
   })
 }    // setup
 const getBalance = async(address) => {
-    balance = await L2Provider.getBalance(address)
+    let balance = await L2Provider.getBalance(address)
     // convert a currency unit from wei to ether
-    const balanceInEth = ethers.utils.formatEther(balance)
+    balanceInEth = ethers.utils.formatEther(balance)
     console.log(`balance: ${balanceInEth} ETH`)
     return balanceInEth
 }
@@ -87,7 +90,7 @@ const withdrawPartL2 = async () => {
     };
     console.log(transaction)
 
-    const  signed = await wallet.signTransaction(transaction);
+    const signed = await wallet.signTransaction(transaction)
     const res = await L2Provider.sendTransaction(signed);
     console.log(res);
 
@@ -117,11 +120,24 @@ const withdrawPartL1 = async (hash) => {
 
   console.log("Waiting for status to change to RELAYED")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  console.log(`withdrawETH took ${(new Date()-start)/1000} seconds\n\n\n`)  
+  console.log(`withdrawPartL1 took ${(new Date()-start)/1000} seconds\n\n\n`)
 }     // withdrawFeeVaultETH()
 
 const transferToBatcher = async()=> {
+    // Create a wallet instance
+    let wallet = new ethers.Wallet(FEE_WITHDRAWAL_PRIVKEY, L1Provider)
 
+    // Create a transaction object
+    let transaction = {
+        to: BATCHER_ADDRESS,
+        // Convert currency unit from ether to wei
+        value: ethers.utils.parseEther(balanceInEth)
+    }
+
+    // Send a transaction
+    const res = await wallet.sendTransaction(transaction)
+    console.log(res);
+    console.log(`Transferred to Batcher address ${BATCHER_ADDRESS}, amount ${balanceInEth} ETH.`)
 }
 
 const main = async () => {
@@ -141,8 +157,10 @@ const main = async () => {
             await new Promise(resolve => setTimeout(resolve, process.env.PT_PROPOSER_PERIOD));
 
             await withdrawPartL1(hash)
+            console.log("Completed part L1 of withdrawal")
             await transferToBatcher()
-            console.log("Withdraw completed! \n\n\n")
+
+            console.log("Withdraw and transfer completed! \n\n\n")
         }
 
         // Waiting... and check balance again
