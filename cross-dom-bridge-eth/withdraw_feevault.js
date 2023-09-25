@@ -17,7 +17,7 @@ const getSigners = async () => {
     const l1RpcProvider = new ethers.providers.JsonRpcProvider(l1Url)
     const l2RpcProvider = new ethers.providers.JsonRpcProvider(l2Url)
 
-    const privateKey = process.env.FEE_WITHDRAWAL_PRIVKEY
+    const privateKey = process.env.SEPOLIA_FEE_WITHDRAWAL_PRIVKEY
     const l1Wallet = new ethers.Wallet(privateKey, l1RpcProvider)
     const l2Wallet = new ethers.Wallet(privateKey, l2RpcProvider)
 
@@ -27,8 +27,8 @@ const getSigners = async () => {
 const setup = async() => {
   const [l1Signer, l2Signer] = await getSigners()
   crossChainMessenger = new patexSDK.CrossChainMessenger({
-      l1ChainId: 11155111,
-      l2ChainId: 471100,
+      l1ChainId: 1,
+      l2ChainId: 789,
       l1SignerOrProvider: l1Signer,
       l2SignerOrProvider: l2Signer,
       bedrock: true
@@ -54,12 +54,12 @@ const withdrawFeeVaultETH = async (hash) => {
   console.log("Withdraw prove hash: ", hash)
   const start = new Date()
 
-  console.log("Waiting for status to be READY_TO_PROVE")
+  /*console.log("Waiting for status to be READY_TO_PROVE")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
   await crossChainMessenger.waitForMessageStatus(hash,
     patexSDK.MessageStatus.READY_TO_PROVE)
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)  
-  await crossChainMessenger.proveMessage(hash)
+  await crossChainMessenger.proveMessage(hash)*/
 
   console.log("Ready for relay, finalizing message now")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
@@ -73,7 +73,7 @@ const withdrawFeeVaultETH = async (hash) => {
 
 const main = async () => {
     await setup()
-    await withdrawFeeVaultETH("<<withdraw_trx_hash>>")
+    await withdrawFeeVaultETH("0x85a962dec9281aefc0fce35a3ca67da72b649360760368ad0481318ed588ac42")
 }  // main
 
 
