@@ -139,7 +139,7 @@ const main = async () => {
 
             await withdrawPartL1(hash)
             await transferToBatcher()
-            console.log("Withdraw completed! \n\n\n"
+            console.log("Withdraw completed! \n\n\n")
         }
 
         // Waiting... and check balance again
