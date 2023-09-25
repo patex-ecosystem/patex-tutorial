@@ -67,7 +67,7 @@ const withdrawPartL2 = async () => {
     const nonce = await L2Provider.getTransactionCount(sender, 'pending');
 
     const feeContractInstance = new ethers.Contract(
-        process.env.FEE_VAUL_ADDRESS,
+        process.env.FEE_VAULT_ADDRESS,
         withdrawalAbi,
         L2Provider,
     );
@@ -82,7 +82,7 @@ const withdrawPartL2 = async () => {
         value: ethers.BigNumber.from('0').toHexString(),
         nonce,
         from: sender,
-        to: process.env.FEE_VAUL_ADDRESS,
+        to: process.env.FEE_VAULT_ADDRESS,
         chainId: ethers.BigNumber.from(L2_CHAIN_ID).toNumber(),
     };
     console.log(transaction)
@@ -129,7 +129,7 @@ const main = async () => {
 
     while (true) {
         console.log("Checking balance")
-        let balance = await getBalance(process.env.FEE_VAUL_ADDRESS)
+        let balance = await getBalance(process.env.FEE_VAULT_ADDRESS)
         if (balance > process.env.WITHDRAW_THRESHOLD) {
             console.log("Have coins for withdraw: ", balance)
             // if we've more than 1 ETH then process withdrawal
