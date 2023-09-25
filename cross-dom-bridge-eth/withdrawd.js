@@ -108,6 +108,7 @@ const withdrawPartL1 = async (hash) => {
   await crossChainMessenger.proveMessage(hash)
 
   //waiting for complete finalization period
+  console.log("Waiting finalization period (ms):", process.env.FINALIZATION_PERIOD)
   await new Promise(resolve => setTimeout(resolve, process.env.FINALIZATION_PERIOD));
 
   console.log("Ready for relay, finalizing message now")
@@ -133,8 +134,10 @@ const main = async () => {
             console.log("Have coins for withdraw: ", balance)
             // if we've more than 1 ETH then process withdrawal
             hash = await withdrawPartL2()
+            console.log("Completed part L2 of withdrawal, hash:", hash)
 
             // Waiting while pt-proposer send proving transaction
+            console.log("Waiting pt-proposer period (ms):", process.env.PT_PROPOSER_PERIOD)
             await new Promise(resolve => setTimeout(resolve, process.env.PT_PROPOSER_PERIOD));
 
             await withdrawPartL1(hash)
@@ -143,6 +146,7 @@ const main = async () => {
         }
 
         // Waiting... and check balance again
+        console.log("Waiting checking balance period (ms):", process.env.CHECKING_BALANCE_PERIOD)
         await new Promise(resolve => setTimeout(resolve, process.env.CHECKING_BALANCE_PERIOD));
     }
 
