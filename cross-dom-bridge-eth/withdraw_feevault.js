@@ -6,18 +6,21 @@ const ethers = require("ethers")
 const patexSDK = require("@eth-patex/sdk")
 require('dotenv').config()
 
-// Chains URL's
-const l1Url = process.env.L1_SEPOLIA_URL
-const l2Url = process.env.L2_PATEX_SEPOLIA_URL
+// Loading network constants from .env
+const L1_PATEX_URL= process.env.NETWORK === 'mainnet' ? process.env.L1_MAINNET_URL : process.env.L1_SEPOLIA_URL;
+const L2_PATEX_URL = process.env.NETWORK === 'mainnet' ? process.env.L2_MAINNET_URL : process.env.L2_SEPOLIA_URL;
+const FEE_WITHDRAWAL_PRIVKEY = process.env.NETWORK === 'mainnet' ? process.env.MAINNET_FEE_WITHDRAWAL_PRIVKEY : process.env.SEPOLIA_FEE_WITHDRAWAL_PRIVKEY;
+const L1_CHAIN_ID = process.env.NETWORK === 'mainnet' ? process.env.L1_MAINNET_CHAIN_ID : process.env.L1_SEPOLIA_CHAIN_ID;
+const L2_CHAIN_ID = process.env.NETWORK === 'mainnet' ? process.env.L2_MAINNET_CHAIN_ID : process.env.L2_SEPOLIA_CHAIN_ID;
 
 // Global variable because we need them almost everywhere
 let crossChainMessenger
 
 const getSigners = async () => {
-    const l1RpcProvider = new ethers.providers.JsonRpcProvider(l1Url)
-    const l2RpcProvider = new ethers.providers.JsonRpcProvider(l2Url)
+    const l1RpcProvider = new ethers.providers.JsonRpcProvider(L1_PATEX_URL)
+    const l2RpcProvider = new ethers.providers.JsonRpcProvider(L2_PATEX_URL)
 
-    const privateKey = process.env.SEPOLIA_FEE_WITHDRAWAL_PRIVKEY
+    const privateKey = FEE_WITHDRAWAL_PRIVKEY
     const l1Wallet = new ethers.Wallet(privateKey, l1RpcProvider)
     const l2Wallet = new ethers.Wallet(privateKey, l2RpcProvider)
 
@@ -27,8 +30,8 @@ const getSigners = async () => {
 const setup = async() => {
   const [l1Signer, l2Signer] = await getSigners()
   crossChainMessenger = new patexSDK.CrossChainMessenger({
-      l1ChainId: 1,
-      l2ChainId: 789,
+      l1ChainId: L1_CHAIN_ID,
+      l2ChainId: L2_CHAIN_ID,
       l1SignerOrProvider: l1Signer,
       l2SignerOrProvider: l2Signer,
       bedrock: true
@@ -73,7 +76,7 @@ const withdrawFeeVaultETH = async (hash) => {
 
 const main = async () => {
     await setup()
-    await withdrawFeeVaultETH("0x85a962dec9281aefc0fce35a3ca67da72b649360760368ad0481318ed588ac42")
+    await withdrawFeeVaultETH("0x68e90b2489f750e1f9d4875b74a166feae7bf1adec15131eaa94d37aef1a1fef")
 }  // main
 
 
