@@ -47,6 +47,12 @@ const getSigners = async () => {
 
 const setup = async() => {
   const [l1Signer, l2Signer] = await getSigners()
+
+  console.log(`Setting up patex SDK:`)
+  console.log(`\tL1_CHAIN_ID = ${L1_CHAIN_ID}, L2_CHAIN_ID = ${L2_CHAIN_ID}`)
+  console.log(`\tL1_PATEX_URL = ${L1_PATEX_URL}, L2_PATEX_URL = ${L2_PATEX_URL}`)
+  console.log(`\tBATCHER_ADDRESS = ${BATCHER_ADDRESS}`)
+
   crossChainMessenger = new patexSDK.CrossChainMessenger({
       l1ChainId: L1_CHAIN_ID,
       l2ChainId: L2_CHAIN_ID,
