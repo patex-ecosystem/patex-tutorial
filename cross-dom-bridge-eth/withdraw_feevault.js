@@ -64,7 +64,12 @@ const withdrawFeeVaultETH = async (hash) => {
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)  
   await crossChainMessenger.proveMessage(hash)*/
 
-  console.log("Ready for relay, finalizing message now")
+  console.log("In the challenge period, waiting for status READY_FOR_RELAY")
+  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
+  await crossChainMessenger.waitForMessageStatus(hash,
+        patexSDK.MessageStatus.READY_FOR_RELAY)
+
+    console.log("Ready for relay, finalizing message now")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
   await crossChainMessenger.finalizeMessage(hash)
 

@@ -111,24 +111,23 @@ const withdrawPartL1 = async (hash) => {
 
   console.log("Waiting for status to be READY_TO_PROVE")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  await crossChainMessenger.waitForMessageStatus(hash,
-    patexSDK.MessageStatus.READY_TO_PROVE)
+  await crossChainMessenger.waitForMessageStatus(hash, patexSDK.MessageStatus.READY_TO_PROVE)
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
 
   const proveTx = await crossChainMessenger.proveMessage(hash)
-  const proveReceipt = await proveTx.wait(12)
-  console.log('Prove receipt', proveReceipt)
+  const proveReceipt = await proveTx.wait()
+  console.log('Prove receipt: ', proveReceipt)
 
   //waiting for complete finalization period
-  console.log("Waiting finalization period (ms):", process.env.FINALIZATION_PERIOD)
-  await new Promise(resolve => setTimeout(resolve, process.env.FINALIZATION_PERIOD));
+  console.log("In the challenge period, waiting for status READY_FOR_RELAY")
+  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
+  await crossChainMessenger.waitForMessageStatus(hash, patexSDK.MessageStatus.READY_FOR_RELAY)
 
   console.log("Ready for relay, finalizing message now")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-
-  const tx = await crossChainMessenger.finalizeMessage(hash)
-  const receipt = await tx.wait(12)
-  console.log(receipt)
+  const finalizeTx = await crossChainMessenger.finalizeMessage(hash)
+  const finalizeReceipt = await finalizeTx.wait(12) //wait 12 confirmations
+  console.log('Finalize receipt: ',finalizeReceipt)
 
   console.log(`withdrawPartL1 took ${(new Date()-start)/1000} seconds`)
 }     // withdrawFeeVaultETH()
