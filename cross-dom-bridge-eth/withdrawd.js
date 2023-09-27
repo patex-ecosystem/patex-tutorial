@@ -116,7 +116,7 @@ const withdrawPartL1 = async (hash) => {
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
 
   const proveTx = await crossChainMessenger.proveMessage(hash)
-  const proveReceipt = await proveTx.wait()
+  const proveReceipt = await proveTx.wait(12)
   console.log('Prove receipt', proveReceipt)
 
   //waiting for complete finalization period
@@ -127,7 +127,7 @@ const withdrawPartL1 = async (hash) => {
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
 
   const tx = await crossChainMessenger.finalizeMessage(hash)
-  const receipt = await tx.wait()
+  const receipt = await tx.wait(12)
   console.log(receipt)
 
   console.log(`withdrawPartL1 took ${(new Date()-start)/1000} seconds`)

@@ -69,7 +69,7 @@ const withdrawFeeVaultETH = async (hash) => {
   await crossChainMessenger.finalizeMessage(hash)
 
   const tx = await crossChainMessenger.finalizeMessage(hash)
-  const receipt = await tx.wait()
+  const receipt = await tx.wait(12)
   console.log(receipt)
 
   console.log(`withdrawETH took ${(new Date()-start)/1000} seconds\n\n\n`)  
@@ -78,7 +78,7 @@ const withdrawFeeVaultETH = async (hash) => {
 
 const main = async () => {
     await setup()
-    await withdrawFeeVaultETH("0xf7b13558b7de265bca9ba2fa6a9a9115eb5a98d59ea3af1c316a26f8746b95bb")
+    await withdrawFeeVaultETH("0x100f68cfa5dd4b3cdf5ebf67922464865e4d0022461a03f80b8e1678fbefa0ae")
 }  // main
 
 
