@@ -68,15 +68,17 @@ const withdrawFeeVaultETH = async (hash) => {
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
   await crossChainMessenger.finalizeMessage(hash)
 
-  console.log("Waiting for status to change to RELAYED")
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
+  const tx = await crossChainMessenger.finalizeMessage(hash)
+  const receipt = await tx.wait()
+  console.log(receipt)
+
   console.log(`withdrawETH took ${(new Date()-start)/1000} seconds\n\n\n`)  
 }     // withdrawFeeVaultETH()
 
 
 const main = async () => {
     await setup()
-    await withdrawFeeVaultETH("0x68e90b2489f750e1f9d4875b74a166feae7bf1adec15131eaa94d37aef1a1fef")
+    await withdrawFeeVaultETH("0xf7b13558b7de265bca9ba2fa6a9a9115eb5a98d59ea3af1c316a26f8746b95bb")
 }  // main
 
 

@@ -113,8 +113,11 @@ const withdrawPartL1 = async (hash) => {
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
   await crossChainMessenger.waitForMessageStatus(hash,
     patexSDK.MessageStatus.READY_TO_PROVE)
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)  
-  await crossChainMessenger.proveMessage(hash)
+  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
+
+  const proveTx = await crossChainMessenger.proveMessage(hash)
+  const proveReceipt = await proveTx.wait()
+  console.log('Prove receipt', proveReceipt)
 
   //waiting for complete finalization period
   console.log("Waiting finalization period (ms):", process.env.FINALIZATION_PERIOD)
@@ -122,11 +125,12 @@ const withdrawPartL1 = async (hash) => {
 
   console.log("Ready for relay, finalizing message now")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  await crossChainMessenger.finalizeMessage(hash)
 
-  console.log("Waiting for status to change to RELAYED")
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  console.log(`withdrawPartL1 took ${(new Date()-start)/1000} seconds\n\n\n`)
+  const tx = await crossChainMessenger.finalizeMessage(hash)
+  const receipt = await tx.wait()
+  console.log(receipt)
+
+  console.log(`withdrawPartL1 took ${(new Date()-start)/1000} seconds`)
 }     // withdrawFeeVaultETH()
 
 const transferToBatcher = async()=> {
