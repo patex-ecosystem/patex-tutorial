@@ -98,7 +98,8 @@ const withdrawPartL2 = async () => {
 
     const signed = await wallet.signTransaction(transaction)
     const res = await L2Provider.sendTransaction(signed);
-    console.log(res);
+    const receipt = await res.wait()
+    console.log("Receipt: ", receipt);
 
     return res.hash
 } // withdrawPartL2
