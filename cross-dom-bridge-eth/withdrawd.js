@@ -118,10 +118,11 @@ const withdrawPartL1 = async (txHash) => {
   const proveReceipt = await proveTx.wait()
   console.log('Prove receipt', proveReceipt)
 
+  // log status every hour
   const finalizeInterval = setInterval(async () => {
             const currentStatus = await crossChainMessenger.getMessageStatus(txHash)
             console.log(`Message status: ${patexSDK.MessageStatus[currentStatus]}`)
-        }, 3000)
+        }, 60*60*1000)
 
   try {
       await crossChainMessenger.waitForMessageStatus(
@@ -132,12 +133,16 @@ const withdrawPartL1 = async (txHash) => {
       clearInterval(finalizeInterval)
   }
 
+  //After READY_FOR_RELAY status finalizeMessage raise an error on testnet: proven withdrawal finalization period has not elapsed.
+  // So wait additional 5 minutes and finalize...
+  await new Promise(resolve => setTimeout(resolve, 5*60*1000));
+
   const tx = await crossChainMessenger.finalizeMessage(txHash)
   const receipt = await tx.wait()
   console.log('Finalize receipt', receipt)
   console.log('Finalized withdrawal')
 
-}     // withdrawFeeVaultETH()
+} // withdrawPartL1
 
 const transferToBatcher = async()=> {
     // Create a wallet instance
@@ -154,7 +159,7 @@ const transferToBatcher = async()=> {
     const res = await wallet.sendTransaction(transaction)
     console.log(res);
     console.log(`Transferred to Batcher address ${BATCHER_ADDRESS}, amount ${balanceInEth} ETH.`)
-}
+} //transferToBatcher
 
 const main = async () => {
     await setup()

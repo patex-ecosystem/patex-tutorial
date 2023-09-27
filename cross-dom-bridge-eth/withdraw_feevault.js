@@ -57,19 +57,19 @@ const withdrawFeeVaultETH = async (hash) => {
   console.log("Withdraw prove hash: ", hash)
   const start = new Date()
 
-  /*console.log("Waiting for status to be READY_TO_PROVE")
+  console.log("Waiting for status to be READY_TO_PROVE")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
   await crossChainMessenger.waitForMessageStatus(hash,
     patexSDK.MessageStatus.READY_TO_PROVE)
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)  
-  await crossChainMessenger.proveMessage(hash)*/
+  await crossChainMessenger.proveMessage(hash)
 
   console.log("In the challenge period, waiting for status READY_FOR_RELAY")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
   await crossChainMessenger.waitForMessageStatus(hash,
         patexSDK.MessageStatus.READY_FOR_RELAY)
 
-    console.log("Ready for relay, finalizing message now")
+  console.log("Ready for relay, finalizing message now")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
   await crossChainMessenger.finalizeMessage(hash)
 
@@ -83,7 +83,7 @@ const withdrawFeeVaultETH = async (hash) => {
 
 const main = async () => {
     await setup()
-    await withdrawFeeVaultETH("0xeff855504ae75e04b069b9485ffa5846a04f33413948ccc1fe550552366f1836")
+    await withdrawFeeVaultETH("0xa031babc6e3958f319025a37f5749a3a363ba8f8f4b848a74736c3bfff7bca8e")
 }  // main
 
 
