@@ -106,30 +106,36 @@ const withdrawPartL2 = async () => {
 const withdrawPartL1 = async (txHash) => {
   
   console.log("Withdraw part L1")
-  console.log("Withdraw prove hash: ", txHash)
+  console.log("Withdraw L2 transaction hash: ", txHash)
   const start = new Date()
 
   console.log("Waiting for status to be READY_TO_PROVE")
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  await crossChainMessenger.waitForMessageStatus(txHash, patexSDK.MessageStatus.READY_TO_PROVE)
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
+  const status = await crossChainMessenger.waitForMessageStatus(txHash, patexSDK.MessageStatus.READY_TO_PROVE)
+  console.log(`Status: ${patexSDK.MessageStatus[status]}`)
 
   const proveTx = await crossChainMessenger.proveMessage(txHash)
   const proveReceipt = await proveTx.wait()
-  console.log('Prove receipt: ', proveReceipt)
+  console.log('Prove receipt', proveReceipt)
 
-  //waiting for complete finalization period
-  console.log("In the challenge period, waiting for status READY_FOR_RELAY")
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  await crossChainMessenger.waitForMessageStatus(txHash, patexSDK.MessageStatus.READY_FOR_RELAY)
+  const finalizeInterval = setInterval(async () => {
+            const currentStatus = await crossChainMessenger.getMessageStatus(txHash)
+            console.log(`Message status: ${patexSDK.MessageStatus[currentStatus]}`)
+        }, 3000)
 
-  console.log("Ready for relay, finalizing message now")
-  console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  const finalizeTx = await crossChainMessenger.finalizeMessage(txHash)
-  const finalizeReceipt = await finalizeTx.wait(12) //wait 12 confirmations
-  console.log('Finalize receipt: ', finalizeReceipt)
+  try {
+      await crossChainMessenger.waitForMessageStatus(
+          txHash,
+          patexSDK.MessageStatus.READY_FOR_RELAY
+      )
+  } finally {
+      clearInterval(finalizeInterval)
+  }
 
-  console.log(`withdrawPartL1 took ${(new Date()-start)/1000} seconds`)
+  const tx = await crossChainMessenger.finalizeMessage(txHash)
+  const receipt = await tx.wait()
+  console.log('Finalize receipt', receipt)
+  console.log('Finalized withdrawal')
+
 }     // withdrawFeeVaultETH()
 
 const transferToBatcher = async()=> {
