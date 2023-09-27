@@ -119,6 +119,7 @@ const withdrawPartL1 = async (txHash) => {
   console.log('Prove receipt', proveReceipt)
 
   // log status every hour
+  console.log("Waiting for status to be READY_FOR_RELAY")
   const finalizeInterval = setInterval(async () => {
             const currentStatus = await crossChainMessenger.getMessageStatus(txHash)
             console.log(`Message status: ${patexSDK.MessageStatus[currentStatus]}`)
@@ -132,8 +133,9 @@ const withdrawPartL1 = async (txHash) => {
   } finally {
       clearInterval(finalizeInterval)
   }
+  console.log(`Status: ${patexSDK.MessageStatus[status]}`)
 
-  //After READY_FOR_RELAY status finalizeMessage raise an error on testnet: proven withdrawal finalization period has not elapsed.
+    //After READY_FOR_RELAY status finalizeMessage raise an error on testnet: proven withdrawal finalization period has not elapsed.
   // So wait additional 5 minutes and finalize...
   await new Promise(resolve => setTimeout(resolve, 5*60*1000));
 
