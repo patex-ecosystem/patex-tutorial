@@ -103,31 +103,31 @@ const withdrawPartL2 = async () => {
     return res.hash
 } // withdrawPartL2
 
-const withdrawPartL1 = async (hash) => {
+const withdrawPartL1 = async (txHash) => {
   
   console.log("Withdraw part L1")
-  console.log("Withdraw prove hash: ", hash)
+  console.log("Withdraw prove hash: ", txHash)
   const start = new Date()
 
   console.log("Waiting for status to be READY_TO_PROVE")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  await crossChainMessenger.waitForMessageStatus(hash, patexSDK.MessageStatus.READY_TO_PROVE)
+  await crossChainMessenger.waitForMessageStatus(txHash, patexSDK.MessageStatus.READY_TO_PROVE)
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
 
-  const proveTx = await crossChainMessenger.proveMessage(hash)
+  const proveTx = await crossChainMessenger.proveMessage(txHash)
   const proveReceipt = await proveTx.wait()
   console.log('Prove receipt: ', proveReceipt)
 
   //waiting for complete finalization period
   console.log("In the challenge period, waiting for status READY_FOR_RELAY")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  await crossChainMessenger.waitForMessageStatus(hash, patexSDK.MessageStatus.READY_FOR_RELAY)
+  await crossChainMessenger.waitForMessageStatus(txHash, patexSDK.MessageStatus.READY_FOR_RELAY)
 
   console.log("Ready for relay, finalizing message now")
   console.log(`Time so far ${(new Date()-start)/1000} seconds`)
-  const finalizeTx = await crossChainMessenger.finalizeMessage(hash)
+  const finalizeTx = await crossChainMessenger.finalizeMessage(txHash)
   const finalizeReceipt = await finalizeTx.wait(12) //wait 12 confirmations
-  console.log('Finalize receipt: ',finalizeReceipt)
+  console.log('Finalize receipt: ', finalizeReceipt)
 
   console.log(`withdrawPartL1 took ${(new Date()-start)/1000} seconds`)
 }     // withdrawFeeVaultETH()
@@ -157,18 +157,14 @@ const main = async () => {
         let balance = await getBalance(process.env.FEE_VAULT_ADDRESS)
         if (balance > process.env.WITHDRAW_THRESHOLD) {
             console.log("Have coins for withdraw: ", balance)
-            // if we've more than 1 ETH then process withdrawal
-            hash = await withdrawPartL2()
-            console.log("Completed part L2 of withdrawal, hash:", hash)
 
-            // Waiting while pt-proposer send proving transaction
-            console.log("Waiting pt-proposer period (ms):", process.env.PT_PROPOSER_PERIOD)
-            await new Promise(resolve => setTimeout(resolve, process.env.PT_PROPOSER_PERIOD));
+            let txHash = await withdrawPartL2()
+            console.log("Completed part L2 of withdrawal, hash:", txHash)
 
-            await withdrawPartL1(hash)
+            await withdrawPartL1(txHash)
             console.log("Completed part L1 of withdrawal")
-            await transferToBatcher()
 
+            await transferToBatcher()
             console.log("Withdraw and transfer completed! \n\n\n")
         }
 
